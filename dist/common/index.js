@@ -8,9 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -19,32 +16,30 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./logging"));
+// export * from './logging';
 const VSCode = __importStar(require("vscode"));
+const SJCommon = __importStar(require("@space-janitor/common"));
+const OS = __importStar(require("os"));
 const configuration_1 = require("./configuration");
-const util_1 = require("util");
-const Logging = __importStar(require("./logging"));
+const Commands = __importStar(require("./commands"));
 const Util = __importStar(require("util"));
-var logger = Logging.getLog4JSLogger(module.filename);
-function activate(extensionContext) {
-    Logging.intializeLogging({
-        appenders: { 'outputAppender': { type: require.resolve('./outputAppender'), layout: { type: 'basic' } } },
-        categories: { default: { appenders: ["outputAppender"], 'level': 'debug' } }
-    });
-    if (!util_1.isUndefined(exports.configuration) && (exports.configuration.configured)) {
+const logger = SJCommon.getLog4JSLogger(module.filename);
+exports.FILE_URI_SCHEME = OS.platform() === 'win32' ? 'file:///' : 'file://';
+function activate(context) {
+    if (!Util.isUndefined(exports.configuration) && (exports.configuration.configured)) {
         logger.info('Configuration already initialized.');
-    }
-    let disposable = VSCode.commands.registerCommand('configurations.configure', configure);
-    extensionContext.subscriptions.push(disposable);
-    if (Util.isNullOrUndefined(VSCode.workspace.workspaceFile)) {
-        logger.warn("There is no active workspace. The hog-vscode-fhir extension requires an active workspace.");
         return;
     }
+    // if (Util.isNullOrUndefined(VSCode.workspace.workspaceFile)) {
+    //     logger.warn("There is no active workspace. The hog-vscode-fhir extension requires an active workspace.");
+    //     return;
+    // }
     logger.info('== activate begins ==');
-    exports.configuration = new configuration_1.Configuration(extensionContext);
+    exports.configuration = new configuration_1.Configuration(context);
     exports.configuration.initialize();
-    extensionContext.subscriptions.push(VSCode.workspace.onDidChangeWorkspaceFolders(e => onDidChangeWorkspaceFolders(e)));
-    extensionContext.subscriptions.push(VSCode.workspace.onDidChangeConfiguration(e => onDidChangeConfiguration(e)));
+    context.subscriptions.push(VSCode.workspace.onDidChangeWorkspaceFolders(e => onDidChangeWorkspaceFolders(e)));
+    context.subscriptions.push(VSCode.workspace.onDidChangeConfiguration(e => onDidChangeConfiguration(e)));
+    Commands.activateCommands(context);
     logger.info('== activate ends ====');
 }
 exports.activate = activate;
@@ -53,49 +48,27 @@ function deactivate() {
     logger.info('== deactivate ends ====');
 }
 exports.deactivate = deactivate;
-function testLogger() {
-    try {
-        // AWS.initialize();
-        logger.trace('Entering cheese testing');
-        logger.debug('Got cheese.');
-        logger.info('Cheese is Comté.');
-        logger.warn('Cheese is quite smelly.');
-        logger.error('Cheese is too ripe!');
-        logger.fatal('Cheese was breeding ground for listeria.');
-    }
-    catch (ex) {
-        console.error(ex);
-    }
-}
-exports.testLogger = testLogger;
 function onDidChangeWorkspaceFolders(e) {
     logger.info(`WorkspaceFolders changed. ${e.added.join(',')} added & ${e.removed.join(',')} removed."`);
 }
 function onDidChangeConfiguration(e) {
-    logger.info('VSCode configuration changed.');
-    if (e.affectsConfiguration('hog-vscode-fhir').valueOf()) {
-        VSCode.window.showInputBox({ prompt: "Workspace configuration has changed. Do you want to restart VSCode?", ignoreFocusOut: true, placeHolder: "Enter 'yes' to reload" }).then((value) => {
-            if (Util.isNullOrUndefined(value)) {
-                VSCode.window.showWarningMessage('You have choosen not to restart VSCode.');
-            }
-            else {
-                VSCode.commands.executeCommand('workbench.action.reloadWindow');
-            }
-        });
-    }
+    logger.warn('VSCode configuration changed.');
+    // if (e.affectsConfiguration('hog-vscode-fhir').valueOf()) {
+    //     VSCode.window.showInputBox({ prompt: "Workspace configuration has changed. Do you want to restart VSCode?", ignoreFocusOut: true, placeHolder: "Enter 'yes' to reload" }).then((value) => {
+    //         if (Util.isNullOrUndefined(value)||value !== 'yes') {
+    //             VSCode.window.showWarningMessage('You have choosen not to restart VSCode.');
+    //         } else {
+    //             VSCode.commands.executeCommand('workbench.action.reloadWindow');
+    //         }
+    //     });
+    // }
 }
-function configure() {
+function openTextEditor(filename, viewColumn = 1) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield VSCode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, canSelectMany: false, openLabel: 'Select DataFolder' }).then((path => {
-            if ((path)) {
-                exports.configuration.setDataFolder(decodeURI(path[0].fsPath));
-            }
-            else {
-                logger.warn('User setting hog-vscode-fhir.HomeWorkspaceFolder was not set.');
-                exports.configuration.configured = false;
-            }
-        }));
+        VSCode.window.showTextDocument(VSCode.Uri.parse(`${exports.FILE_URI_SCHEME}${filename}`), { preview: false, viewColumn: viewColumn }).then(textEditor => {
+            logger.info(`TextEditor loaded`);
+        });
     });
 }
-exports.configure = configure;
+exports.openTextEditor = openTextEditor;
 //# sourceMappingURL=index.js.map

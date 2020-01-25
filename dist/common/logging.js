@@ -40,4 +40,19 @@ function intializeLogging(configuration = defaultLg4JSConfiguration) {
     }
 }
 exports.intializeLogging = intializeLogging;
+function testLogger() {
+    try {
+        // AWS.initialize();
+        logger.trace('Entering cheese testing');
+        logger.debug('Got cheese.');
+        logger.info('Cheese is Comté.');
+        logger.warn('Cheese is quite smelly.');
+        logger.error('Cheese is too ripe!');
+        logger.fatal('Cheese was breeding ground for listeria.');
+    }
+    catch (ex) {
+        console.error(ex);
+    }
+}
+exports.testLogger = testLogger;
 //# sourceMappingURL=logging.js.map

@@ -1,3 +1,3 @@
-# vscode
+# sj-vscode
 
-Space Janitor Visual Studio Code extension for all things data.
+Space Janitor Visual Studio Code extension template.

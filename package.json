@@ -9,7 +9,7 @@
 	"license": "MIT",
 	"author": {
 		"name": "Carlos A. Betancourt",
-		"email": "betancourtca@upmc.edu"
+		"email": "carlos@betancourtca.net"
 	},
 	"repository": {
 		"type": "GitHub",
@@ -20,7 +20,7 @@
 		"theme": "dark"
 	},
 	"engines": {
-		"vscode": "^1.40.0"
+		"vscode": "^1.41.0"
 	},
 	"categories": [
 		"Formatters",
@@ -31,18 +31,6 @@
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "skunkworks.testLogger",
-				"title": "Test Log4JS logger.",
-				"category": "HOG-FHIR-Skunkworks"
-			},
-			{
-				"command": "skunkworks.debug",
-				"title": "Debug functionality.",
-				"category": "HOG-FHIR-Skunkworks"
-			}
-		],
 		"configuration": {
 			"type": "object",
 			"title": "Space Janitor configuration",
@@ -50,9 +38,39 @@
 				"sj-vscode.DataFolder": {
 					"type": "string",
 					"default": null,
-					"description": "Space Janitor home folder"
+					"description": "Space Janitor data folder"
 				}
 			}
+		},
+		"commands": [
+			{
+				"command": "common.testLogger",
+				"title": "Test Log4JS logger.",
+				"category": "Space Janitor common"
+			},
+			{
+				"command": "common.addDataFolderToWorkspace",
+				"title": "Add Space Janitor Data Folder to workspace.",
+				"category": "Space Janitor common"
+			},
+			{
+				"command": "common.setDataFolder",
+				"title": "Set data folder",
+				"category": "Space Janitor common"
+			},
+			{
+				"command": "common.debug",
+				"title": "debug",
+				"category": "Space Janitor common"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "common.addDataFolderToWorkspace",
+					"when": "explorerViewletFocus == true"
+				}
+			]
 		}
 	},
 	"scripts": {
@@ -72,10 +90,10 @@
 		"tslint": "^5.20.1",
 		"typescript": "^3.7.3",
 		"vscode-test": "^1.2.2",
-		"grunt": "^1.0.4",
-		"vscode": "^1.1.36"
+		"grunt": "^1.0.4"
 	},
 	"dependencies": {
+		"@space-janitor/common": "0.0.2",
 		"log4js": "^6.0.0",
 		"pkg-dir": "^4.2.0"
 	}
