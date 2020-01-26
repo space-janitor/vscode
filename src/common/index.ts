@@ -56,7 +56,9 @@ function onDidChangeConfiguration(e: VSCode.ConfigurationChangeEvent) {
 }
 
 export async function openTextEditor(filename: string, viewColumn=1) {
+    logger.info('== openTextEditor begins');
     VSCode.window.showTextDocument(VSCode.Uri.parse(`${FILE_URI_SCHEME}${filename}`), { preview: false ,viewColumn:viewColumn}).then(textEditor => {
-        logger.info(`TextEditor loaded`);
+        logger.info(`'${filename}' loaded`);
+        logger.info('== openTextEditor ends');
     });
 }

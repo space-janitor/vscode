@@ -3,7 +3,7 @@
 	"displayName": "sj-vscode",
 	"description": "Space Janitor VSCode extension",
 	"publisher": "SpaceJanitor",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"readme": "README.md",
 	"markdown": "standard",
 	"license": "MIT",

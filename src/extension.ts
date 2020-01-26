@@ -12,6 +12,7 @@ var logger = SJCommon.getLog4JSLogger(module.filename);
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: VSCode.ExtensionContext) {
+	logger.info('== activate begins ==');
 	SJCommon.intializeLogging({
 		appenders: { 'outputAppender': { type: require.resolve('./outputAppender'), layout: { type: 'basic' } } },
 		categories: { default: { appenders: ["outputAppender"], 'level': 'debug' } }
@@ -32,6 +33,7 @@ export function activate(context: VSCode.ExtensionContext) {
 			// context.subscriptions.push(disposable);
 			logger.info("Extension is enabled.");
 		}
+		logger.info('== activate ends ==');
 	}).catch(err=>{
 		console.error(err);
 	});
@@ -39,5 +41,7 @@ export function activate(context: VSCode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {
+	logger.info('== deactivate begins');
 	Common.deactivate();
+	logger.info('== deactivate ends');
 }
