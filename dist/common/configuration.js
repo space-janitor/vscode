@@ -10,7 +10,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const VSCode = __importStar(require("vscode"));
 const FS = __importStar(require("fs"));
 const Path = __importStar(require("path"));
-const Util = __importStar(require("util"));
 const SJCommon = __importStar(require("@space-janitor/common"));
 const OS = __importStar(require("os"));
 var logger = SJCommon.getLog4JSLogger(module.filename);
@@ -18,31 +17,34 @@ class Configuration {
     constructor(extensionContext) {
         this.extensionContext = extensionContext;
         this.configured = false;
+        logger.info('== constructor begins ==');
         this.workspaceConfiguration = VSCode.workspace.getConfiguration("hog-vscode-fhir");
-        if (Util.isObject(VSCode.workspace.workspaceFile)) {
+        if (VSCode.workspace.workspaceFile) {
             this.configurationTarget = VSCode.ConfigurationTarget.Workspace;
         }
-        else if (Util.isNullOrUndefined(VSCode.workspace.workspaceFolders)) {
-            this.configurationTarget = VSCode.ConfigurationTarget.Global;
-        }
-        else {
+        else if (VSCode.workspace.workspaceFolders) {
             this.configurationTarget = VSCode.ConfigurationTarget.WorkspaceFolder;
         }
+        else {
+            this.configurationTarget = VSCode.ConfigurationTarget.Global;
+        }
+        logger.info('== constructor ends ==');
     }
     initialize() {
         if (this.configured) {
             logger.info('Is already initialized.');
             return;
         }
-        logger.info('== Initialize begins ==');
+        logger.info('== initialize begins ==');
         logger.info(`configurationTarget: ${this.configurationTarget}`);
         let dataFolder = this.getDataFolder();
         logger.info(`DataFolder: '${dataFolder}'`);
         this.validateDataFolder(dataFolder);
         this.configured = true;
-        logger.info('== Initialize ends ====');
+        logger.info('== initialize ends ==');
     }
     validateDataFolder(dataFolder) {
+        logger.info('== validateDataFolder begins ==');
         if (!FS.existsSync(dataFolder)) {
             FS.mkdirSync(dataFolder);
         }
@@ -57,32 +59,39 @@ class Configuration {
                 logger.info(`Home subfolder '${subFolder}' exists.`);
             }
         });
+        logger.info('== validateDataFolder ends ==');
     }
     setDataFolder(dataFolder) {
+        logger.info('== setDataFolder begins');
         FS.exists(dataFolder, (exists) => {
             if (exists) {
-                this.workspaceConfiguration.update('DataFolder', dataFolder, VSCode.ConfigurationTarget.Workspace).then(onfulfiled => {
+                this.workspaceConfiguration.update('DataFolder', dataFolder, VSCode.ConfigurationTarget.Workspace).then(() => {
                     this.validateDataFolder(dataFolder);
                     this.configured = true;
                     logger.info(`DataFolder set to "${dataFolder}".`, true);
-                }, onrejected => {
+                }, (reason) => {
+                    logger.warn(reason);
                     logger.warn(`Failed to set DataFolder to "${dataFolder}". This extension expects an open Workspace. Do you have a workspace open?`, true);
                 });
             }
+            logger.info('== setDataFolder ends');
         });
     }
     setConfiguration(key, value) {
-        this.workspaceConfiguration.update(key, value, VSCode.ConfigurationTarget.Workspace).then(onfulfiled => {
-            logger.debug(`Success setting key[${key}].value to ${Util.isObject(value) ? JSON.stringify(value) : '"' + value + '"'}.`);
-        }, onrejected => {
-            logger.warn(`Failed setting key[${key}].valuet to ${Util.isObject(value) ? JSON.stringify(value) : '"' + value + '"'}.`);
+        logger.info('== setConfiguration begins');
+        this.workspaceConfiguration.update(key, value, VSCode.ConfigurationTarget.Workspace).then(() => {
+            logger.debug(`Success setting key[${key}].value to ${value ? JSON.stringify(value) : '"' + value + '"'}.`);
+        }, (reason) => {
+            logger.warn(reason);
+            logger.warn(`Failed setting key[${key}].valuet to ${value ? JSON.stringify(value) : '"' + value + '"'}.`);
         });
+        logger.info('== setConfiguration ends');
     }
     getConfiguration(key) {
         return this.workspaceConfiguration.get(key);
     }
     getDataFolder() {
-        return Util.isNullOrUndefined(this.getConfiguration("DataFolder")) ? Path.join(OS.userInfo().homedir, '.space-janitor') : this.getConfiguration("DataFolder");
+        return !this.getConfiguration("DataFolder") ? Path.join(OS.userInfo().homedir, '.space-janitor') : this.getConfiguration("DataFolder");
     }
     debug() {
         logger.debug(`DataFolder: ${this.getDataFolder()}`);

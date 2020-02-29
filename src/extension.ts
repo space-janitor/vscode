@@ -3,7 +3,6 @@
 import * as VSCode from 'vscode';
 import * as SJCommon from '@space-janitor/common';
 import * as Common from './common';
-import * as Util from 'util';
 
 var logger = SJCommon.getLog4JSLogger(module.filename);
 
@@ -19,7 +18,7 @@ export function activate(context: VSCode.ExtensionContext) {
 	}).then(() => {
 		logger.info("== Activation begins ==");
 		Common.activate(context);
-		if (Util.isNullOrUndefined(Common.configuration) || Util.isNullOrUndefined(Common.configuration.configured) || !Common.configuration.configured) {
+		if (!Common.configuration || !Common.configuration.configured) {
 			logger.warn("Extension is not enabled.");
 		}
 		else {

@@ -2,7 +2,6 @@
 import * as VSCode from 'vscode';
 import * as FS from 'fs';
 import * as Path from 'path';
-import * as Util from 'util';
 import * as SJCommon from '@space-janitor/common';
 import * as OS from 'os';
 
@@ -15,14 +14,14 @@ export class Configuration implements VSCode.Disposable {
         logger.info('== constructor begins ==');
 
         this.workspaceConfiguration = VSCode.workspace.getConfiguration("hog-vscode-fhir");
-        if(Util.isObject(VSCode.workspace.workspaceFile)){
+        if(VSCode.workspace.workspaceFile){
             this.configurationTarget = VSCode.ConfigurationTarget.Workspace;
         }
-        else if(Util.isNullOrUndefined(VSCode.workspace.workspaceFolders)){
-            this.configurationTarget = VSCode.ConfigurationTarget.Global;
+        else if(VSCode.workspace.workspaceFolders){
+            this.configurationTarget = VSCode.ConfigurationTarget.WorkspaceFolder;
         }
         else{
-            this.configurationTarget = VSCode.ConfigurationTarget.WorkspaceFolder;
+            this.configurationTarget = VSCode.ConfigurationTarget.Global;
         }
         logger.info('== constructor ends ==');
     }
@@ -63,12 +62,13 @@ export class Configuration implements VSCode.Disposable {
         FS.exists(dataFolder, (exists) => {
             if (exists) {
                 this.workspaceConfiguration.update('DataFolder', dataFolder, VSCode.ConfigurationTarget.Workspace).then(
-                    onfulfiled => {
+                    () => {
                         this.validateDataFolder(dataFolder);
                         this.configured = true;
                         logger.info(`DataFolder set to "${dataFolder}".`, true);
                     },
-                    onrejected => {
+                    (reason) => {
+                        logger.warn(reason);
                         logger.warn(`Failed to set DataFolder to "${dataFolder}". This extension expects an open Workspace. Do you have a workspace open?`, true);
                     });
             }
@@ -78,11 +78,12 @@ export class Configuration implements VSCode.Disposable {
     setConfiguration(key: string, value: any) {
         logger.info('== setConfiguration begins');
         this.workspaceConfiguration.update(key, value, VSCode.ConfigurationTarget.Workspace).then(
-            onfulfiled  => {
-                logger.debug(`Success setting key[${key}].value to ${Util.isObject(value) ? JSON.stringify(value) : '"' + value + '"'}.`);
+            ()  => {
+                logger.debug(`Success setting key[${key}].value to ${value ? JSON.stringify(value) : '"' + value + '"'}.`);
             },
-            onrejected => {
-                logger.warn(`Failed setting key[${key}].valuet to ${Util.isObject(value) ? JSON.stringify(value) : '"' + value + '"'}.`);
+            (reason) => {
+                logger.warn(reason);
+                logger.warn(`Failed setting key[${key}].valuet to ${value ? JSON.stringify(value) : '"' + value + '"'}.`);
             });
         logger.info('== setConfiguration ends');
     }
@@ -90,7 +91,7 @@ export class Configuration implements VSCode.Disposable {
         return this.workspaceConfiguration.get(key);
     }
     getDataFolder() {
-        return Util.isNullOrUndefined(this.getConfiguration("DataFolder")) ? Path.join(OS.userInfo().homedir, '.space-janitor') : this.getConfiguration("DataFolder");
+        return !this.getConfiguration("DataFolder") ? Path.join(OS.userInfo().homedir, '.space-janitor') : this.getConfiguration("DataFolder");
     }
     debug(){
         logger.debug(`DataFolder: ${this.getDataFolder()}`);

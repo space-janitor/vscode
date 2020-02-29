@@ -9,19 +9,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const SJCommon = __importStar(require("@space-janitor/common"));
 const Common = __importStar(require("./common"));
-const Util = __importStar(require("util"));
 var logger = SJCommon.getLog4JSLogger(module.filename);
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 function activate(context) {
+    logger.info('== activate begins ==');
     SJCommon.intializeLogging({
         appenders: { 'outputAppender': { type: require.resolve('./outputAppender'), layout: { type: 'basic' } } },
         categories: { default: { appenders: ["outputAppender"], 'level': 'debug' } }
     }).then(() => {
         logger.info("== Activation begins ==");
         Common.activate(context);
-        if (Util.isNullOrUndefined(Common.configuration) || Util.isNullOrUndefined(Common.configuration.configured) || !Common.configuration.configured) {
+        if (!Common.configuration || !Common.configuration.configured) {
             logger.warn("Extension is not enabled.");
         }
         else {
@@ -34,6 +34,7 @@ function activate(context) {
             // context.subscriptions.push(disposable);
             logger.info("Extension is enabled.");
         }
+        logger.info('== activate ends ==');
     }).catch(err => {
         console.error(err);
     });
@@ -41,7 +42,9 @@ function activate(context) {
 exports.activate = activate;
 // this method is called when your extension is deactivated
 function deactivate() {
+    logger.info('== deactivate begins');
     Common.deactivate();
+    logger.info('== deactivate ends');
 }
 exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map

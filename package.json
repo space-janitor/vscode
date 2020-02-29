@@ -1,9 +1,9 @@
 {
-	"name": "sj-vscode",
+	"name": "vscode",
 	"displayName": "sj-vscode",
 	"description": "Space Janitor VSCode extension",
 	"publisher": "SpaceJanitor",
-	"version": "0.0.2",
+	"version": "0.0.1",
 	"readme": "README.md",
 	"markdown": "standard",
 	"license": "MIT",
@@ -78,22 +78,26 @@
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile",
-		"test": "node ./out/test/runTest.js"
+		"test": "node ./out/test/runTest.js",
+		"lint": "eslint -c .eslintrc.js --ext .ts ./src"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^5.2.7",
 		"@types/node": "^12.12.11",
 		"@types/vscode": "^1.41.0",
+		"@typescript-eslint/eslint-plugin": "^2.21.0",
+		"@typescript-eslint/parser": "^2.21.0",
+		"eslint": "^6.8.0",
 		"glob": "^7.1.5",
+		"grunt": "^1.0.4",
 		"mocha": "^6.2.2",
-		"tslint": "^5.20.1",
 		"typescript": "^3.7.3",
-		"vscode-test": "^1.2.2",
-		"grunt": "^1.0.4"
+		"vscode-test": "^1.2.2"
 	},
 	"dependencies": {
-		"@space-janitor/common": "0.0.2",
+		"@space-janitor/common": "0.0.4",
+		"handlebars": "^4.7.2",
 		"log4js": "^6.0.0",
 		"pkg-dir": "^4.2.0"
 	}

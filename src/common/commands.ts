@@ -1,7 +1,6 @@
 'use strict';
 import * as VSCode from 'vscode';
 import * as SJCommon from '@space-janitor/common';
-import * as Util from 'util';
 import * as Path from 'path';
 import * as Common from './index';
 import * as OS from 'os';
@@ -38,7 +37,7 @@ export async function setDataFolder() {
 function addPersonalDataFolderToWorkspace(){
     logger.info('== addPersonalDataFolderToWorkspace begins');
     let dataFolder = Path.join(OS.userInfo().homedir,'.space-janitor');
-    if(Util.isNullOrUndefined(VSCode.workspace.getWorkspaceFolder(VSCode.Uri.parse(`${Common.FILE_URI_SCHEME}${dataFolder}`)))){
+    if(!VSCode.workspace.getWorkspaceFolder(VSCode.Uri.parse(`${Common.FILE_URI_SCHEME}${dataFolder}`))){
         VSCode.workspace.updateWorkspaceFolders(0, null, {uri:VSCode.Uri.parse(`${Common.FILE_URI_SCHEME}${dataFolder}`), name:'Personal' });
     }
     else{
